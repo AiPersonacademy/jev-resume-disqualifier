@@ -1,0 +1,26 @@
+ELENA ROSTOVA
+San Francisco, CA | elena.rostova@cloudscale.io | (415) 555-0192 | US Citizen
+
+SUMMARY
+Staff / Senior Distributed Systems Engineer with 7+ years of experience architecting resilient financial transaction pipelines, high-throughput payment ledgers, and low-latency microservices in Go and Kubernetes.
+
+WORK EXPERIENCE
+
+Senior Distributed Systems Engineer | CloudScale FinTech Inc.
+June 2021 – Present (San Francisco, CA)
+- Architected and deployed a multi-region distributed payment settlement engine in Go (Golang) handling 45,000 requests/sec with p99 latency under 12ms.
+- Built mission-critical Apache Kafka message streams with idempotent deduplication and partitioned ledger storage in PostgreSQL.
+- Implemented gRPC microservices and automated Kubernetes deployment pipelines on AWS.
+
+Distributed Backend Engineer | DataStream Corp
+January 2019 – May 2021 (Seattle, WA)
+- Scaled Go microservices for real-time telemetry processing across distributed clusters.
+- Tuned complex PostgreSQL queries, connection pooling, and multi-tenant sharding.
+
+Software Engineer | NextGen Systems
+July 2017 – December 2018 (Austin, TX)
+- Developed backend API endpoints in Go and Python; maintained Docker container infrastructure.
+
+EDUCATION & SKILLS
+B.S. in Computer Science, University of California, Berkeley (2017)
+Skills: Go (Golang), Distributed Systems, Apache Kafka, PostgreSQL, Kubernetes, AWS, Docker, gRPC, Redis

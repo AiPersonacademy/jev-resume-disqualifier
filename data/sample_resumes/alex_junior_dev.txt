@@ -1,0 +1,21 @@
+ALEX MORGAN
+Denver, CO | alex.morgan@email.com | US Citizen
+
+SUMMARY
+High-energy Junior Software Engineer with 1.8 years of professional experience building modern web apps, REST APIs in Go, and containerized cloud services.
+
+WORK EXPERIENCE
+
+Junior Software Engineer | TechPulse Solutions
+June 2023 – Present (Denver, CO)
+- Developed backend REST endpoints in Go and Node.js for an inventory management dashboard.
+- Maintained Docker containers and assisted senior engineers with AWS deployments.
+- Wrote unit tests and integrated Postgres queries for reporting services.
+
+Associate Developer Intern | CloudVenture
+January 2023 – May 2023 (Boulder, CO)
+- Assisted backend team with API bug fixes and documentation.
+
+EDUCATION
+B.S. in Information Systems, Colorado State University (Dec 2022)
+Skills: Go, Node.js, REST APIs, Git, PostgreSQL, Docker

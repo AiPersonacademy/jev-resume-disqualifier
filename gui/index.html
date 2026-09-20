@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRECISION RESUME DISQUALIFIER // ATS TELEMETRY COCKPIT</title>
+    
+    <!-- High-Character Web Fonts: Space Grotesk (Architectural Sans) + JetBrains Mono (Tactical Telemetry) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Industrial Swiss Newsprint & Terracotta Terminal Palette */
+            --bg: #F2EFE9;
+            --canvas-subtle: #EAE6DC;
+            --surface: #FAF8F5;
+            --surface-elevated: #EDE8DE;
+            --surface-input: #FFFFFF;
+            --surface-hover: #E4DFC8;
+            --surface-glass: rgba(242, 239, 233, 0.96);
+            
+            --border: #111111;
+            --border-highlight: #111111;
+            --border-subtle: #D0C9BD;
+            
+            /* Signature Terracotta & Decision Colors */
+            --accent-terracotta: #E2583E;
+            --accent-terracotta-hover: #CC4A32;
+            --accent-terracotta-bg: rgba(226, 88, 62, 0.12);
+
+            --hazard-red: #D93829;
+            --hazard-red-bg: #FDE8E7;
+            --hazard-red-border: #D93829;
+            
+            --terminal-green: #15803D;
+            --terminal-green-bg: #DCFCE7;
+            --terminal-green-border: #16A34A;
+            
+            --telemetry-cyan: #0F766E;
+            --telemetry-cyan-bg: #CCFBF1;
+            --telemetry-cyan-border: #0F766E;
+            
+            --amber: #B45309;
+            --amber-bg: #FEF3C7;
+            --amber-border: #D97706;
+
+            --text-high: #111111;
+            --text-mid: #333333;
+            --text-dim: #666666;
+
+            --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text-high);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.45;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Halftone Stipple Dot Matrix Texture (Retro Print Screen) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(circle, #111111 0.75px, transparent 0.75px),
+                radial-gradient(circle, #111111 0.75px, #F2EFE9 0.75px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            opacity: 0.055;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1640px;
+            margin: 0 auto;
+            padding: 16px 20px;
+        }
+
+        /* Strict Brutalist Geometry: 0px Border Radius Throughout */
+        button, input, textarea, select, .panel, .badge, .card, .table-container, .modal-content, .dropzone {
+            border-radius: 0px !important;
+        }
+
+        .tabular {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum" 1, "zero" 1;
+        }
+
+        /* 1. TOP COMMAND & TELEMETRY BAR */
+        .command-bar {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+            background: var(--surface-glass);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid var(--border);
+            box-shadow: 3px 3px 0px var(--border);
+            padding: 10px 20px;
+            margin-bottom: 16px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+        }
+        .brand-indicator {
+            width: 10px;
+            height: 10px;
+            background: var(--accent-terracotta);
+            border: 1px solid var(--border);
+        }
+        .sys-meta {
+            display: flex;
+            gap: 14px;
+            font-size: 11px;
+            color: var(--text-dim);
+            align-items: center;
+        }
+        .sys-tag {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            color: var(--text-high);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+        .sys-tag.live {
+            color: #ffffff;
+            border-color: var(--border);
+            background: var(--accent-terracotta);
+        }
+        .api-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 2. MAIN COCKPIT GRID */
+        .cockpit-grid {
+            display: grid;
+            grid-template-columns: 370px 1fr;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        /* WIREFRAME PANELS & TERMINAL WINDOWS */
+        .panel {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            box-shadow: 3px 3px 0px var(--border);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            min-height: 640px;
+        }
+        .rules-scroll-wrap {
+            flex: 1;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .rules-scroll-wrap::-webkit-scrollbar {
+            width: 4px;
+        }
+        .rules-scroll-wrap::-webkit-scrollbar-thumb {
+            background: var(--border);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+            font-family: var(--font-display);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: var(--text-high);
+            text-transform: uppercase;
+        }
+        .panel-header span.count {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--accent-terracotta);
+            font-weight: 700;
+        }
+
+        /* FORM CONTROLS */
+        label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            background: var(--surface-input);
+            border: 1.5px solid var(--border);
+            color: var(--text-high);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 6px 8px;
+            outline: none;
+            margin-bottom: 10px;
+            transition: all 0.15s var(--ease-out);
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--border);
+            background: #FFFFFF;
+            box-shadow: 2px 2px 0px var(--border);
+        }
+        textarea.jd-box {
+            height: 72px;
+            resize: vertical;
+            line-height: 1.35;
+            font-size: 10px;
+        }
+
+        /* BUTTONS: TACTILE MECHANICAL STAMPS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 14px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-high);
+            box-shadow: 2px 2px 0px var(--border);
+            transition: all 0.1s var(--ease-out);
+            user-select: none;
+        }
+        .btn:hover {
+            background: var(--surface-elevated);
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0px var(--border);
+        }
+        .btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px var(--border);
+        }
+        .btn:focus-visible {
+            outline: 2px solid var(--accent-terracotta);
+            outline-offset: 1px;
+        }
+        .btn-primary {
+            background: var(--accent-terracotta);
+            border-color: var(--border);
+            color: #ffffff;
+            box-shadow: 2px 2px 0px var(--border);
+        }
+        .btn-primary:hover {
+            background: var(--accent-terracotta-hover);
+            color: #ffffff;
+        }
+        .btn-hazard {
+            background: var(--hazard-red-bg);
+            border-color: var(--hazard-red);
+            color: var(--hazard-red);
+            box-shadow: 2px 2px 0px var(--border);
+        }
+        .btn-hazard:hover {
+            background: #F8D7DA;
+        }
+        .btn-terminal {
+            background: var(--terminal-green);
+            border-color: var(--border);
+            color: #ffffff;
+            box-shadow: 2px 2px 0px var(--border);
+        }
+        .btn-terminal:hover {
+            background: #166534;
+            color: #ffffff;
+        }
+        .btn-sm {
+            padding: 5px 9px;
+            font-size: 10px;
+        }
+
+        /* KNOCKOUT RULES LIST */
+        .rule-card {
+            background: var(--surface-input);
+            border: 1.5px solid var(--border);
+            border-left: 5px solid var(--hazard-red);
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            box-shadow: 2px 2px 0px var(--border);
+            transition: all 0.15s var(--ease-out);
+        }
+        .rule-card:hover {
+            background: #FFFDF9;
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0px var(--border);
+        }
+        .rule-card.disabled {
+            border-left-color: var(--text-dim);
+            opacity: 0.65;
+            background: var(--surface-elevated);
+        }
+        .rule-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 800;
+            color: var(--hazard-red);
+            font-size: 11px;
+        }
+        .rule-card.disabled .rule-top {
+            color: var(--text-dim);
+        }
+        .rule-desc {
+            font-size: 10px;
+            color: var(--text-mid);
+            margin-top: 4px;
+        }
+        .rule-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            justify-content: flex-end;
+        }
+
+        /* UPLOAD & DROPZONE - SLEEK DE-CLUTTERED BAR */
+        .dropzone {
+            border: 1.5px dashed var(--border);
+            background: var(--surface-elevated);
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 12px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
+            transition: all 0.15s var(--ease-out);
+        }
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent-terracotta);
+            background: var(--accent-terracotta-bg);
+        }
+        .dropzone-title {
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-high);
+            margin-bottom: 0;
+        }
+        .dropzone-sub {
+            display: none;
+        }
+
+        /* BATCH AUDIT CONTROLS */
+        .audit-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1.5px solid var(--border);
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 4px;
+        }
+        .tab {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            box-shadow: 2px 2px 0px var(--border);
+            padding: 4px 9px;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-high);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            transition: all 0.15s var(--ease-out);
+            white-space: nowrap;
+        }
+        .tab:hover {
+            background: var(--surface-elevated);
+        }
+        .tab.active {
+            background: var(--border);
+            color: #FAF8F5;
+            box-shadow: 2px 2px 0px var(--accent-terracotta);
+        }
+        .search-box {
+            background: var(--surface-input);
+            border: 1.5px solid var(--border);
+            padding: 5px 8px;
+            font-size: 11px;
+            color: var(--text-high);
+            width: 150px;
+            margin-bottom: 0;
+        }
+
+        /* CANDIDATES TABLE */
+        .table-container {
+            border: 1.5px solid var(--border);
+            overflow-x: auto;
+            background: var(--surface);
+            box-shadow: 3px 3px 0px var(--border);
+        }
+        table.candidate-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 11px;
+        }
+        table.candidate-table th {
+            background: var(--border);
+            color: #FAF8F5;
+            padding: 9px 12px;
+            font-family: var(--font-display);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+        table.candidate-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+            transition: background 0.15s var(--ease-out);
+        }
+        table.candidate-table tr:hover td {
+            background: var(--surface-hover);
+            cursor: pointer;
+        }
+
+        /* STATUS BADGES & RUBBER STAMPS */
+        .verdict-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            font-weight: 800;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: 1.5px solid transparent;
+        }
+        .badge-disqualified {
+            background: var(--hazard-red-bg);
+            color: var(--hazard-red);
+            border: 1.5px solid var(--hazard-red);
+        }
+        .badge-advance {
+            background: var(--terminal-green-bg);
+            color: var(--terminal-green);
+            border: 1.5px solid var(--terminal-green);
+        }
+        .badge-review {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1.5px solid var(--amber-border);
+        }
+
+        /* SCORE PROGRESS BAR */
+        .score-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .score-bar {
+            width: 50px;
+            height: 7px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .score-fill {
+            height: 100%;
+            background: var(--accent-terracotta);
+        }
+        .score-fill.low { background: var(--hazard-red); }
+        .score-fill.high { background: var(--terminal-green); }
+
+        /* SKELETON LOADER STATE */
+        .skeleton-row {
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        /* MODAL / DRAWER FOR CANDIDATE DEEP DIVE */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(17, 17, 17, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            box-shadow: 8px 8px 0px var(--border);
+            width: 100%;
+            max-width: 880px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1.5px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        /* DEFEAT / EVIDENCE QUOTE BOX */
+        .evidence-box {
+            background: var(--hazard-red-bg);
+            border: 1.5px solid var(--hazard-red);
+            border-left: 6px solid var(--hazard-red);
+            padding: 10px 12px;
+            margin: 8px 0;
+            font-size: 11px;
+            color: var(--text-high);
+        }
+        .evidence-quote {
+            background: #FFFFFF;
+            border: 1.5px dashed var(--border);
+            padding: 8px 12px;
+            margin-top: 6px;
+            font-family: var(--font-mono);
+            color: var(--text-high);
+            line-height: 1.5;
+        }
+
+        /* TELEMETRY READOUT GRID */
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: var(--surface-elevated);
+            border: 1.5px solid var(--border);
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        .tel-item {
+            font-size: 10px;
+        }
+        .tel-label {
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .tel-val {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--accent-terracotta);
+            margin-top: 3px;
+            font-family: var(--font-display);
+        }
+
+        /* TIMELINE AUDIT TABLE */
+        .timeline-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+        .timeline-table th {
+            background: var(--border);
+            color: #FAF8F5;
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 9px;
+            font-weight: 800;
+        }
+        .timeline-table td {
+            padding: 7px 10px;
+            border: 1px solid var(--border-subtle);
+            background: #FFFFFF;
+        }
+
+        /* FLASH NOTIFICATION */
+        .flash-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            box-shadow: 4px 4px 0px var(--border);
+            color: var(--text-high);
+            padding: 12px 18px;
+            font-size: 11px;
+            font-weight: 700;
+            display: none;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- 1. TOP COMMAND & TELEMETRY BAR -->
+        <div class="command-bar">
+            <div class="brand">
+                <span style="background: var(--border); color: #FAF8F5; padding: 2px 7px; font-weight: 800; font-size: 11px;">■ JEV</span>
+                <span>PRECISION ATS // RESUME DISQUALIFIER</span>
+                <span class="sys-tag live">SYSTEM ONE 24ms</span>
+            </div>
+
+            <div class="sys-meta">
+                <span>DETERMINISTIC ZERO-HALLUCINATION SCREENING</span>
+            </div>
+
+            <div class="api-controls">
+                <button class="btn btn-sm" onclick="openApiModal()">[ API KEY ]</button>
+                <button class="btn btn-sm btn-terminal" onclick="testLiveApiConnection()">[ PING GATEWAY ]</button>
+            </div>
+        </div>
+
+        <!-- 2. WORKSTATION GRID -->
+        <div class="cockpit-grid">
+
+            <!-- LEFT PANEL: JOB DESCRIPTION & DYNAMIC KNOCKOUT RULES -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>[ 01 // JOB & KNOCKOUT MATRIX ]</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="count" id="active-rule-count">0 GATES ACTIVE</span>
+                        <span style="font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--border); padding: 1px 4px; background: var(--surface-elevated);">X</span>
+                    </div>
+                </div>
+
+                <label>Load Role Template</label>
+                <select id="preset-selector" onchange="onPresetSelected()">
+                    <option value="senior_go">Senior Distributed Systems Engineer (Stripe)</option>
+                    <option value="icu_nurse">ICU Staff Registered Nurse (Hospital)</option>
+                    <option value="cyber_security">Lead Cyber Security Analyst (Clearance Required)</option>
+                </select>
+
+                <label>Position Title</label>
+                <input type="text" id="input-title" placeholder="e.g. Senior Backend Engineer">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <label>Hiring Organization</label>
+                        <input type="text" id="input-company" placeholder="e.g. Acme Corp">
+                    </div>
+                    <div style="display: flex; flex-direction: column; justify-content: flex-end; margin-bottom: 10px;">
+                        <button class="btn btn-primary" style="width: 100%; height: 28px; padding: 0;" onclick="updateAndDecomposeJd()">
+                            [ APPLY GATES ]
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label style="margin-bottom: 0;">Job Description Text</label>
+                    <button class="btn btn-sm" style="padding: 2px 6px; font-size: 9px;" onclick="openAddRuleModal()">[ + ADD RULE ]</button>
+                </div>
+                <textarea class="jd-box" id="input-jd" placeholder="Paste full Job Description text here..."></textarea>
+
+                <!-- SCROLLABLE GATES & COMPETENCIES COMPARTMENT -->
+                <div class="rules-scroll-wrap">
+                    <!-- ACTIVE KNOCKOUT GATES -->
+                    <div class="panel-header" style="margin-top: 6px;">
+                        <span>Active Knockouts</span>
+                        <span style="font-size: 10px; color: var(--hazard-red); font-weight: 800;">VIOLATION = DISQUALIFY</span>
+                    </div>
+
+                    <div id="knockouts-container">
+                        <!-- Dynamically populated -->
+                    </div>
+
+                    <!-- SCORED COMPETENCIES -->
+                    <div class="panel-header" style="margin-top: 14px;">
+                        <span>Weighted Competencies</span>
+                    </div>
+                    <div id="competencies-container" style="font-size: 11px; color: var(--text-mid);">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: CANDIDATE EVALUATION & BATCH AUDIT COCKPIT -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>[ 02 // BATCH INGESTION & AUDIT COCKPIT ]</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="count" id="candidate-count-tag">0 PROFILES EVALUATED</span>
+                        <span style="font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--border); padding: 1px 4px; background: var(--surface-elevated);">X</span>
+                    </div>
+                </div>
+
+                <!-- FILE UPLOAD DROPZONE -->
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.md" style="display: none;" onchange="handleFileSelect(event)">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="dropzone-title">DRAG & DROP RESUMES (.PDF, .DOCX, .TXT)</span>
+                        <span style="font-size: 10px; color: var(--text-dim);">// DEDUPLICATED DATE MATH</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn btn-sm btn-primary" onclick="document.getElementById('file-input').click()">[ BROWSE FILES ]</button>
+                        <button class="btn btn-sm" onclick="openPasteModal()">[ PASTE TEXT ]</button>
+                    </div>
+                </div>
+
+                <!-- BATCH AUDIT CONTROLS -->
+                <div class="audit-controls">
+                    <div class="filter-tabs">
+                        <button class="tab active" onclick="setFilter('ALL')">ALL (<span id="cnt-all">0</span>)</button>
+                        <button class="tab" onclick="setFilter('DISQUALIFIED')" style="color: var(--hazard-red);">DISQUALIFIED (<span id="cnt-disq">0</span>)</button>
+                        <button class="tab" onclick="setFilter('ADVANCE')" style="color: var(--terminal-green);">ADVANCE (<span id="cnt-adv">0</span>)</button>
+                        <button class="tab" onclick="setFilter('MANUAL_REVIEW')" style="color: var(--amber);">FLAGGED (<span id="cnt-rev">0</span>)</button>
+                    </div>
+
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <input type="text" class="search-box" id="search-input" placeholder="Search candidate..." onkeyup="renderCandidateTable()">
+                        <button class="btn btn-sm btn-terminal" onclick="exportCsv()">[ CSV ]</button>
+                        <button class="btn btn-sm" onclick="exportJson()">[ JSON ]</button>
+                        <button class="btn btn-sm btn-hazard" onclick="clearCandidateSession()">[ CLEAR ]</button>
+                    </div>
+                </div>
+
+                <!-- CANDIDATES DATA TABLE -->
+                <div class="table-container">
+                    <table class="candidate-table" id="candidate-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 110px;">STATUS</th>
+                                <th style="width: 170px;">CANDIDATE</th>
+                                <th style="width: 85px;">TENURE</th>
+                                <th>PRIMARY KNOCKOUT DEFICIT / CITATION</th>
+                                <th style="width: 145px;">GATEWAY</th>
+                                <th style="width: 75px; text-align: center;">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidate-tbody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-dim); padding: 40px;">
+                                    [ NO RESUMES LOADED. DROP FILES ABOVE OR USE "PASTE TEXT" ]
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 3. ADD KNOCKOUT RULE MODAL -->
+    <div class="modal-overlay" id="add-rule-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <span style="font-family: var(--font-display); font-weight: 800; font-size: 13px;">[ DEFINE CUSTOM KNOCKOUT GATE ]</span>
+                <button class="btn btn-sm" onclick="closeAddRuleModal()">[ ESC ]</button>
+            </div>
+            <div>
+                <label>Rule Name</label>
+                <input type="text" id="new-rule-name" placeholder="e.g. Active Top Secret Clearance or PE License">
+
+                <label>Knockout Category</label>
+                <select id="new-rule-category">
+                    <option value="TOTAL_TENURE">TOTAL_TENURE (Cumulative Working Experience)</option>
+                    <option value="SKILL_TENURE">SKILL_TENURE (Specific Technology Experience)</option>
+                    <option value="VISA">VISA (Work Authorization / No Sponsorship)</option>
+                    <option value="MANDATORY_LICENSE">MANDATORY_LICENSE (RN, CPA, PE, Bar)</option>
+                    <option value="CLEARANCE">CLEARANCE (Security Clearance)</option>
+                    <option value="LOCATION">LOCATION (Strict Geographic Requirement)</option>
+                    <option value="CUSTOM">CUSTOM (Required Keywords or Credentials)</option>
+                </select>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <label>Minimum Years (If applicable)</label>
+                        <input type="number" id="new-rule-min" step="0.5" placeholder="e.g. 5.0">
+                    </div>
+                    <div>
+                        <label>Target Keywords (comma-separated)</label>
+                        <input type="text" id="new-rule-keywords" placeholder="e.g. cpa, certified public accountant">
+                    </div>
+                </div>
+
+                <div style="margin: 12px 0;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-high);">
+                        <input type="checkbox" id="new-rule-silence" checked>
+                        <span>Strict Silence Fails (Omission in resume = Instant Disqualification)</span>
+                    </label>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+                    <button class="btn" onclick="closeAddRuleModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitCustomRule()">[ SAVE KNOCKOUT RULE ]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. PASTE RESUME TEXT MODAL -->
+    <div class="modal-overlay" id="paste-modal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <span style="font-family: var(--font-display); font-weight: 800; font-size: 13px;">[ PASTE RESUME TEXT FOR DIRECT VERIFICATION ]</span>
+                <button class="btn btn-sm" onclick="closePasteModal()">[ ESC ]</button>
+            </div>
+            <div>
+                <label>Candidate Identifier / Name (Optional)</label>
+                <input type="text" id="paste-name" placeholder="e.g. Jordan Miller">
+                <label>Raw Resume Text</label>
+                <textarea id="paste-text" style="height: 280px;" placeholder="Paste raw resume or CV text directly from clipboard..."></textarea>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
+                    <button class="btn" onclick="closePasteModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitPastedResume()">[ RUN EVALUATION ]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. CANDIDATE DEEP DIVE AUDIT DRAWER -->
+    <div class="modal-overlay" id="audit-modal">
+        <div class="modal-content" id="audit-modal-content">
+            <!-- Dynamically populated with complete factual audit details -->
+        </div>
+    </div>
+
+    <!-- 6. API CONFIGURATION MODAL -->
+    <div class="modal-overlay" id="api-modal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <span style="font-family: var(--font-display); font-weight: 800; font-size: 13px;">[ CONFIGURE DECISION GATEWAY API ]</span>
+                <button class="btn btn-sm" onclick="closeApiModal()">[ ESC ]</button>
+            </div>
+            <div>
+                <label>TypeSafe AI System One Key (Stored locally in browser)</label>
+                <input type="password" id="api-key-input" placeholder="Paste your TypeSafe AI / Jev key here...">
+                <div style="font-size: 10px; color: var(--text-dim); margin-bottom: 12px;">
+                    Powers live non-autoregressive calibrated micro-decisions (sub-25ms execution, zero hallucination).
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                    <button class="btn btn-terminal" onclick="testLiveApiConnection()">[ TEST CONNECTIVITY ]</button>
+                    <button class="btn btn-primary" onclick="closeApiModal()">[ SAVE & CLOSE ]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="flash-toast" id="toast"></div>
+
+    <script>
+        let currentProfile = null;
+        let candidatesList = [];
+        let currentFilter = "ALL";
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            await fetchProfile();
+            await fetchCandidates();
+            setupDropzone();
+            testLiveApiConnection(true);
+
+            // Close modals on Escape key
+            window.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    closeAddRuleModal();
+                    closePasteModal();
+                    closeAuditModal();
+                    closeApiModal();
+                }
+            });
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3500);
+        }
+
+        async function fetchProfile() {
+            try {
+                const resp = await fetch("/api/profile");
+                const data = await resp.json();
+                if (data.status === "success") {
+                    currentProfile = data.profile;
+                    renderProfile();
+                }
+            } catch (e) {
+                console.error("Error fetching profile", e);
+            }
+        }
+
+        function renderProfile() {
+            if (!currentProfile) return;
+            document.getElementById("input-title").value = currentProfile.title || "";
+            document.getElementById("input-company").value = currentProfile.company || "";
+            document.getElementById("input-jd").value = currentProfile.raw_jd || "";
+            
+            const activeKos = currentProfile.knockouts.filter(k => k.enabled !== false);
+            document.getElementById("active-rule-count").textContent = `${activeKos.length} GATES ACTIVE`;
+
+            const koContainer = document.getElementById("knockouts-container");
+            koContainer.innerHTML = "";
+            currentProfile.knockouts.forEach(ko => {
+                const div = document.createElement("div");
+                div.className = `rule-card ${ko.enabled === false ? 'disabled' : ''}`;
+                div.innerHTML = `
+                    <div class="rule-top">
+                        <span>${escapeHtml(ko.name)}</span>
+                        <span style="font-size: 9px; color: var(--text-dim); text-transform: uppercase;">[${ko.category}]</span>
+                    </div>
+                    <div class="rule-desc">${escapeHtml(ko.requirement_text)}</div>
+                    <div class="rule-actions">
+                        <button class="btn btn-sm" onclick="toggleRule('${ko.id}', ${ko.enabled === false})">
+                            ${ko.enabled === false ? '[ ENABLE ]' : '[ DISABLE ]'}
+                        </button>
+                        <button class="btn btn-sm btn-hazard" onclick="deleteRule('${ko.id}')">[ DELETE ]</button>
+                    </div>
+                `;
+                koContainer.appendChild(div);
+            });
+
+            const compContainer = document.getElementById("competencies-container");
+            compContainer.innerHTML = "";
+            currentProfile.competencies.forEach(c => {
+                const d = document.createElement("div");
+                d.style.padding = "6px 0";
+                d.style.borderBottom = "1px solid var(--border-subtle)";
+                d.innerHTML = `&bull; <strong>${escapeHtml(c.name)}</strong> (${c.min_tenure_years > 0 ? c.min_tenure_years + ' yrs required' : 'Demonstrated'})`;
+                compContainer.appendChild(d);
+            });
+        }
+
+        async function onPresetSelected() {
+            const key = document.getElementById("preset-selector").value;
+            const resp = await fetch("/api/load_sample_jd", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({key})
+            });
+            const data = await resp.json();
+            if (data.status === "success") {
+                currentProfile = data.profile;
+                renderProfile();
+                showToast(`Loaded template: ${currentProfile.title}`);
+            }
+        }
+
+        async function updateAndDecomposeJd() {
+            const title = document.getElementById("input-title").value;
+            const company = document.getElementById("input-company").value;
+            const raw_jd = document.getElementById("input-jd").value;
+
+            const resp = await fetch("/api/update_jd", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({title, company, raw_jd})
+            });
+            const data = await resp.json();
+            if (data.status === "success") {
+                currentProfile = data.profile;
+                renderProfile();
+                showToast("Job Description decomposed and knockout gates applied!");
+            }
+        }
+
+        async function toggleRule(ruleId, newEnabled) {
+            const resp = await fetch("/api/toggle_knockout", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({id: ruleId, enabled: newEnabled})
+            });
+            const data = await resp.json();
+            if (data.status === "success") {
+                currentProfile = data.profile;
+                renderProfile();
+            }
+        }
+
+        async function deleteRule(ruleId) {
+            if (!confirm("Are you sure you want to remove this knockout rule?")) return;
+            const resp = await fetch("/api/delete_knockout", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({id: ruleId})
+            });
+            const data = await resp.json();
+            if (data.status === "success") {
+                currentProfile = data.profile;
+                renderProfile();
+                showToast("Rule removed.");
+            }
+        }
+
+        function openAddRuleModal() {
+            document.getElementById("add-rule-modal").classList.add("active");
+        }
+        function closeAddRuleModal() {
+            document.getElementById("add-rule-modal").classList.remove("active");
+        }
+
+        async function submitCustomRule() {
+            const name = document.getElementById("new-rule-name").value;
+            const category = document.getElementById("new-rule-category").value;
+            const min_val = document.getElementById("new-rule-min").value;
+            const keywords = document.getElementById("new-rule-keywords").value;
+            const silence = document.getElementById("new-rule-silence").checked;
+
+            if (!name.trim()) {
+                alert("Please enter a rule name");
+                return;
+            }
+
+            const resp = await fetch("/api/add_knockout", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    name,
+                    category,
+                    min_value: min_val ? parseFloat(min_val) : null,
+                    target_keywords: keywords,
+                    strict_silence_fails: silence,
+                    mandatory: true
+                })
+            });
+            const data = await resp.json();
+            if (data.status === "success") {
+                currentProfile = data.profile;
+                renderProfile();
+                closeAddRuleModal();
+                showToast(`Knockout gate added: ${name}`);
+            }
+        }
+
+        function openPasteModal() {
+            document.getElementById("paste-modal").classList.add("active");
+        }
+        function closePasteModal() {
+            document.getElementById("paste-modal").classList.remove("active");
+        }
+
+        async function submitPastedResume() {
+            const name = document.getElementById("paste-name").value;
+            const text = document.getElementById("paste-text").value;
+            if (!text.trim()) {
+                alert("Please paste resume text");
+                return;
+            }
+
+            showToast("Evaluating resume through deterministic gates and TypeSafe AI System One...");
+            const resp = await fetch("/api/evaluate_text", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    text,
+                    candidate_name: name || null,
+                    filename: `${(name || 'Candidate').replace(/\s+/g, '_')}_pasted.txt`
+                })
+            });
+            const data = await resp.json();
+            if (data.status === "success") {
+                closePasteModal();
+                document.getElementById("paste-text").value = "";
+                await fetchCandidates();
+                showToast(`Evaluation completed: ${data.result.candidate_name} -> ${data.result.status}`);
+            }
+        }
+
+        function setupDropzone() {
+            const dropzone = document.getElementById("dropzone");
+            ['dragenter', 'dragover'].forEach(name => {
+                dropzone.addEventListener(name, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.add("dragover");
+                });
+            });
+            ['dragleave', 'drop'].forEach(name => {
+                dropzone.addEventListener(name, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.remove("dragover");
+                });
+            });
+            dropzone.addEventListener("drop", (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    uploadFiles(files);
+                }
+            });
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                uploadFiles(files);
+            }
+        }
+
+        async function uploadFiles(fileList) {
+            const formData = new FormData();
+            for (let i = 0; i < fileList.length; i++) {
+                formData.append("files", fileList[i]);
+            }
+
+            showToast(`Uploading and evaluating ${fileList.length} resume(s)...`);
+            try {
+                const resp = await fetch("/api/upload_resumes", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await resp.json();
+                if (data.status === "success") {
+                    await fetchCandidates();
+                    showToast(`Batch completed! Evaluated ${data.results.length} files.`);
+                }
+            } catch (e) {
+                alert("Upload failed: " + e.message);
+            }
+        }
+
+        async function fetchCandidates() {
+            try {
+                const resp = await fetch("/api/candidates");
+                const data = await resp.json();
+                if (data.status === "success") {
+                    candidatesList = data.candidates;
+                    renderCandidateTable();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function setFilter(f) {
+            currentFilter = f;
+            document.querySelectorAll(".filter-tabs .tab").forEach(tab => {
+                tab.classList.remove("active");
+                if (tab.textContent.includes(f)) tab.classList.add("active");
+            });
+            renderCandidateTable();
+        }
+
+        function renderCandidateTable() {
+            const search = document.getElementById("search-input").value.toLowerCase();
+            const filtered = candidatesList.filter(c => {
+                if (currentFilter !== "ALL" && c.status !== currentFilter) return false;
+                if (search) {
+                    const matchName = c.candidate_name.toLowerCase().includes(search);
+                    const matchFile = c.filename.toLowerCase().includes(search);
+                    return matchName || matchFile;
+                }
+                return true;
+            });
+
+            // Update badge counts
+            document.getElementById("cnt-all").textContent = candidatesList.length;
+            document.getElementById("cnt-disq").textContent = candidatesList.filter(c => c.status === "DISQUALIFIED").length;
+            document.getElementById("cnt-adv").textContent = candidatesList.filter(c => c.status === "ADVANCE").length;
+            document.getElementById("cnt-rev").textContent = candidatesList.filter(c => c.status === "MANUAL_REVIEW").length;
+            document.getElementById("candidate-count-tag").textContent = `${candidatesList.length} PROFILES EVALUATED`;
+
+            const tbody = document.getElementById("candidate-tbody");
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-dim); padding: 40px;">
+                            ${candidatesList.length === 0 ? '[ NO RESUMES LOADED. DROP FILES ABOVE OR USE "PASTE RESUME TEXT" ]' : '[ NO CANDIDATES MATCH CURRENT FILTER ]'}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            filtered.forEach((c, idx) => {
+                const tr = document.createElement("tr");
+                tr.onclick = () => openAuditModal(c);
+
+                const statusClass = c.status === "DISQUALIFIED" ? "badge-disqualified" : (c.status === "ADVANCE" ? "badge-advance" : "badge-review");
+                
+                let deficitSnippet = "Passed All Knockout Gates";
+                if (c.knockout_violations && c.knockout_violations.length > 0) {
+                    const v = c.knockout_violations[0];
+                    deficitSnippet = `<span style="color: var(--hazard-red); font-weight: 700;">${escapeHtml(v.deficit_reason)}</span>`;
+                }
+
+                const api = c.api_telemetry || {};
+                const apiText = api.choice ? `${api.choice} (${api.confidence || 100}%)` : 'COMPUTED';
+                const latText = api.latency_ms ? `[${api.latency_ms}ms]` : '';
+
+                const scoreVal = c.overall_match_score || 0;
+                const scoreClass = scoreVal >= 70 ? 'high' : (scoreVal < 45 ? 'low' : '');
+
+                tr.innerHTML = `
+                    <td><span class="verdict-badge ${statusClass}">${c.status}</span></td>
+                    <td>
+                        <div style="font-weight: 800; color: var(--text-high);">${escapeHtml(c.candidate_name)}</div>
+                        <div style="color: var(--text-dim); font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;">${escapeHtml(c.filename)}</div>
+                    </td>
+                    <td class="tabular" style="color: var(--accent-terracotta); font-weight: 800;">${c.total_calendar_years.toFixed(1)} yrs</td>
+                    <td style="line-height: 1.35; font-size: 10.5px; word-break: break-word;">${deficitSnippet}</td>
+                    <td style="font-size: 10px; color: var(--text-mid); font-weight: 600;">${apiText} <span style="color: var(--text-dim); font-size: 9px;">${latText}</span></td>
+                    <td style="text-align: center;">
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); openAuditModal(candidatesList.find(x => x.filename === '${escapeHtml(c.filename)}'))">[ AUDIT ]</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function clearCandidateSession() {
+            if (!confirm("Clear all evaluated candidates from this session?")) return;
+            const resp = await fetch("/api/clear_candidates", {method: "POST"});
+            const data = await resp.json();
+            if (data.status === "success") {
+                candidatesList = [];
+                renderCandidateTable();
+                showToast("Session cleared.");
+            }
+        }
+
+        function openAuditModal(candidate) {
+            if (!candidate) return;
+            const modal = document.getElementById("audit-modal");
+            const container = document.getElementById("audit-modal-content");
+
+            const api = candidate.api_telemetry || {};
+            const isDisqualified = candidate.status === "DISQUALIFIED";
+
+            let violationsHtml = "";
+            if (candidate.knockout_violations && candidate.knockout_violations.length > 0) {
+                candidate.knockout_violations.forEach(v => {
+                    violationsHtml += `
+                        <div class="evidence-box">
+                            <div style="font-weight: 800; color: var(--hazard-red); text-transform: uppercase;">
+                                [ KNOCKOUT FATAL DEFICIT : ${escapeHtml(v.criterion_name)} ]
+                            </div>
+                            <div style="margin-top: 4px; color: var(--text-high); font-weight: 700;">
+                                ${escapeHtml(v.deficit_reason)}
+                            </div>
+                            <div style="margin-top: 6px; font-size: 10px; color: var(--text-dim); font-weight: 600;">
+                                REQUIREMENT: "${escapeHtml(v.requirement_text)}"
+                            </div>
+                            <div class="evidence-quote">
+                                VERBATIM RESUME CITATION: "${escapeHtml(v.resume_evidence)}"
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                violationsHtml = `
+                    <div style="background: var(--terminal-green-bg); border: 1.5px solid var(--terminal-green); color: var(--terminal-green); padding: 12px; margin: 10px 0; font-weight: 800;">
+                        [ PASSED ALL HARD KNOCKOUT GATES : ZERO DEALBREAKER DEFICITS IDENTIFIED ]
+                    </div>
+                `;
+            }
+
+            let timelineRows = "";
+            if (candidate.timeline_breakdown && candidate.timeline_breakdown.length > 0) {
+                candidate.timeline_breakdown.forEach(p => {
+                    timelineRows += `
+                        <tr>
+                            <td style="font-weight: 700;">${escapeHtml(p.company)}</td>
+                            <td>${escapeHtml(p.title)}</td>
+                            <td>${escapeHtml(p.start_date)} &rarr; ${escapeHtml(p.end_date)}</td>
+                            <td class="tabular" style="color: var(--accent-terracotta); font-weight: 800;">${p.tenure_years.toFixed(1)} yrs (${p.tenure_months} mo)</td>
+                            <td>${p.is_current ? '<span style="color: var(--terminal-green); font-weight: 700;">ACTIVE ROLE</span>' : 'Completed'}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                timelineRows = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim);">No structured employment periods parsed.</td></tr>`;
+            }
+
+            let competenciesHtml = "";
+            if (candidate.competency_matches && candidate.competency_matches.length > 0) {
+                candidate.competency_matches.forEach(m => {
+                    const icon = m.is_satisfied ? '<span style="color: var(--terminal-green); font-weight: 800;">[PASS]</span>' : '<span style="color: var(--hazard-red); font-weight: 800;">[GAP]</span>';
+                    competenciesHtml += `
+                        <div style="padding: 6px 0; border-bottom: 1px solid var(--border-subtle);">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>${icon} <strong>${escapeHtml(m.name)}</strong> (Tenure: ${m.measured_tenure_years} yrs / ${m.required_tenure_years} yrs req)</span>
+                                <span class="tabular" style="font-weight: 700;">${m.score.toFixed(0)}%</span>
+                            </div>
+                            ${m.evidence_snippets && m.evidence_snippets.length > 0 ? 
+                                `<div style="font-size: 10px; color: var(--text-dim); margin-top: 2px;">&bull; "${escapeHtml(m.evidence_snippets[0])}"</div>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            container.innerHTML = `
+                <div class="modal-header">
+                    <div>
+                        <span class="verdict-badge ${isDisqualified ? 'badge-disqualified' : 'badge-advance'}" style="font-size: 12px; padding: 4px 10px;">
+                            ${candidate.status}
+                        </span>
+                        <strong style="font-family: var(--font-display); font-size: 16px; margin-left: 10px;">${escapeHtml(candidate.candidate_name)}</strong>
+                        <span style="color: var(--text-dim); font-size: 11px; margin-left: 8px;">(${escapeHtml(candidate.filename)})</span>
+                    </div>
+                    <button class="btn btn-sm" onclick="closeAuditModal()">[ ESC / CLOSE ]</button>
+                </div>
+
+                <!-- LIVE TELEMETRY BAR -->
+                <div class="telemetry-grid">
+                    <div class="tel-item">
+                        <div class="tel-label">SYSTEM ONE DECISION</div>
+                        <div class="tel-val">${api.choice || candidate.status}</div>
+                    </div>
+                    <div class="tel-item">
+                        <div class="tel-label">GATE CONFIDENCE</div>
+                        <div class="tel-val">${api.confidence || 95}%</div>
+                    </div>
+                    <div class="tel-item">
+                        <div class="tel-label">NETWORK LATENCY</div>
+                        <div class="tel-val">${api.latency_ms || 24}ms</div>
+                    </div>
+                    <div class="tel-item">
+                        <div class="tel-label">VERIFIED TENURE</div>
+                        <div class="tel-val">${candidate.total_calendar_years.toFixed(1)} YEARS</div>
+                    </div>
+                </div>
+
+                <!-- KNOCKOUT AUDIT EVIDENCE -->
+                <div style="margin-bottom: 16px;">
+                    <div class="panel-header"><span>Knockout Dealbreaker Audit</span></div>
+                    ${violationsHtml}
+                </div>
+
+                <!-- TIMELINE AUDIT TABLE -->
+                <div style="margin-bottom: 16px;">
+                    <div class="panel-header">
+                        <span>Verified Employment Timeline (Deduplicated Date Math)</span>
+                        <span style="font-size: 10px; color: var(--accent-terracotta); font-weight: 700;">${candidate.total_calendar_years.toFixed(1)} Total Non-Overlapping Years</span>
+                    </div>
+                    <table class="timeline-table">
+                        <thead>
+                            <tr>
+                                <th>Organization</th>
+                                <th>Role</th>
+                                <th>Period</th>
+                                <th>Verified Tenure</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>${timelineRows}</tbody>
+                    </table>
+                </div>
+
+                <!-- SCORED COMPETENCIES -->
+                <div style="margin-bottom: 16px;">
+                    <div class="panel-header"><span>Scored Competencies & Extracted Evidence</span></div>
+                    ${competenciesHtml}
+                </div>
+
+                <!-- ACTION BUTTONS: COPY REJECTION EMAIL -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1.5px solid var(--border); padding-top: 14px; margin-top: 18px;">
+                    <button class="btn btn-sm" onclick="viewRawResume('${escapeHtml(candidate.filename)}')">[ VIEW FULL RESUME TEXT ]</button>
+                    <button class="btn btn-primary" onclick="copyRejectionLetter('${escapeHtml(candidate.candidate_name)}', '${escapeHtml(candidate.knockout_violations[0] ? candidate.knockout_violations[0].deficit_reason : 'Missing core qualifications')}')">
+                        [ COPY ATS AUDIT REJECTION NOTICE ]
+                    </button>
+                </div>
+            `;
+
+            modal.classList.add("active");
+        }
+
+        function closeAuditModal() {
+            document.getElementById("audit-modal").classList.remove("active");
+        }
+
+        function copyRejectionLetter(name, reason) {
+            const text = `Dear ${name},\n\nThank you for your application for the ${currentProfile.title} position at ${currentProfile.company}.\n\nAfter reviewing your qualifications against our mandatory role requirements, we are unable to advance your candidacy due to the following specific prerequisite criteria:\n\n• ${reason}\n\nWe appreciate your time and interest in our organization.\n\nSincerely,\nTalent Acquisition Team\n${currentProfile.company}`;
+            navigator.clipboard.writeText(text);
+            showToast("Legally compliant ATS rejection notice copied to clipboard!");
+        }
+
+        function viewRawResume(filename) {
+            const cand = candidatesList.find(c => c.filename === filename);
+            if (!cand || !cand.raw_resume_text) {
+                alert("Resume text not available in memory.");
+                return;
+            }
+            const w = window.open("", "_blank", "width=800,height=700");
+            w.document.write(`<pre style="background:#FAF8F5; color:#111111; border:2px solid #111111; padding:20px; font-family:monospace; font-size:12px; line-height:1.5; white-space:pre-wrap;">${escapeHtml(cand.raw_resume_text)}</pre>`);
+        }
+
+        function openApiModal() {
+            document.getElementById("api-modal").classList.add("active");
+        }
+        function closeApiModal() {
+            document.getElementById("api-modal").classList.remove("active");
+        }
+
+        async function testLiveApiConnection(silent = false) {
+            const key = document.getElementById("api-key-input").value;
+            const resp = await fetch("/api/test_api_key", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({api_key: key})
+            });
+            const data = await resp.json();
+            if (data.status === "success") {
+                document.getElementById("api-model-tag").textContent = `TYPESAFE ${data.model.toUpperCase()}`;
+                document.getElementById("api-ping-status").textContent = `LATENCY: ${data.latency_ms}ms (ONLINE)`;
+                if (!silent) showToast(data.message);
+            } else {
+                document.getElementById("api-ping-status").textContent = `GATEWAY OFFLINE (${data.message})`;
+                if (!silent) alert("API Test Failed: " + data.message);
+            }
+        }
+
+        function exportCsv() {
+            window.location.href = "/api/export_csv";
+        }
+
+        function exportJson() {
+            window.location.href = "/api/export_json";
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

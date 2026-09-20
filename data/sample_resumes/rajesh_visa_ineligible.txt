@@ -1,0 +1,21 @@
+RAJESH PATEL
+Jersey City, NJ | rajesh.patel.dev@gmail.com | (201) 555-4829
+Work Authorization: H1B Visa (Requires visa sponsorship / H1B transfer)
+
+SUMMARY
+Lead Backend Engineer with 8+ years of experience in distributed systems, financial transaction routing, Go, Java, and cloud architecture.
+
+WORK EXPERIENCE
+
+Lead Distributed Engineer | Apex Financial Technologies
+March 2020 – Present (New York, NY)
+- Led team of 6 engineers developing distributed clearinghouse microservices in Go and Kafka.
+- Designed distributed transaction logs with two-phase commits across PostgreSQL partitions.
+
+Senior Software Engineer | FinEdge Global
+January 2017 – February 2020 (Jersey City, NJ)
+- Built high-throughput transaction routing services in Java and Go on AWS.
+
+EDUCATION
+M.S. in Computer Science, Stevens Institute of Technology (2016)
+Skills: Go, Java, Kafka, PostgreSQL, AWS, Microservices
